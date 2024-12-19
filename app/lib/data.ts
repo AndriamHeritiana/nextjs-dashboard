@@ -142,7 +142,7 @@ export async function fetchInvoicesPages(query: string) {
 
 export async function fetchInvoiceById(id: string) {
   try {
-    const data = await sql<InvoiceForm>`
+    const data = await client.sql<InvoiceForm>`
       SELECT
         invoices.id,
         invoices.customer_id,
@@ -152,12 +152,12 @@ export async function fetchInvoiceById(id: string) {
       WHERE invoices.id = ${id};
     `;
 
-    const invoice = data.rows.map((invoice) => ({
+
+    const invoice = data.map((invoice) => ({
       ...invoice,
       // Convert amount from cents to dollars
       amount: invoice.amount / 100,
     }));
-
     return invoice[0];
   } catch (error) {
     console.error('Database Error:', error);
@@ -167,16 +167,14 @@ export async function fetchInvoiceById(id: string) {
 
 export async function fetchCustomers() {
   try {
-    const data = await sql<CustomerField>`
+    const data = await client.sql<CustomerField>`
       SELECT
         id,
         name
       FROM customers
       ORDER BY name ASC
     `;
-
-    const customers = data.rows;
-    return customers;
+    return data;
   } catch (err) {
     console.error('Database Error:', err);
     throw new Error('Failed to fetch all customers.');
